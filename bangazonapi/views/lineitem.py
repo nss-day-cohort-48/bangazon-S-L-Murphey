@@ -53,8 +53,6 @@ class LineItems(ViewSet):
             customer = Customer.objects.get(user=request.auth.user)
             line_item = OrderProduct.objects.get(pk=pk, order__customer=customer)
 
-            line_item.delete()
-
             serializer = LineItemSerializer(line_item, context={'request': request})
 
             return Response(serializer.data)
