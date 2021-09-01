@@ -1,5 +1,4 @@
 """View module for handling requests about products"""
-from re import T
 from rest_framework.decorators import action
 from bangazonapi.models.recommendation import Recommendation
 import base64
