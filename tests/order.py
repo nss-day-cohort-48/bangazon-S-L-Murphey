@@ -29,6 +29,19 @@ class OrderTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        # Create a PaymentType
+        url = "/paymenttypes"
+        data = { 
+            "url": "http://localhost:8000/paymenttypes/5",
+            "merchant_name": "Chime",
+            "account_number": "000000000000",
+            "expiration_date": "2024-12-12",
+            "create_date": "2020-12-12"
+        }
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
 
     def test_add_product_to_order(self):
         """
@@ -83,22 +96,23 @@ class OrderTests(APITestCase):
         """
         Ensure we can add payment type to order.
         """
-        url = "/paymenttypes"
-        paymenttype = { 
-            "merchant_name": "Chime",
-            "account_number": "000000000000",
-            "expiration_date": "2030-12-12",
-            "create_date": "2020-12-12"
-            }
+        url = "/cart"
+        paymenttype = { "paymenttype": 5}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         response = self.client.post(url, paymenttype, format='json')
-        json_response = json.loads(response.content)
         
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(json_response["merchant_name"], paymenttype['merchant_name'])
-        self.assertEqual(json_response["account_number"], paymenttype['account_number'])
-        self.assertEqual(json_response["expiration_date"], paymenttype['expiration_date'])
-        self.assertEqual(json_response["create_date"], paymenttype['create_date'])
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Get cart and verify payment type was added
+        url = "/cart"
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        response = self.client.get(url, None, format='json')
+        json_response = json.loads(response.content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json_response["id"], 1)
+        self.assertEqual(json_response["size"], 1)
+        self.assertEqual(len(json_response["lineitems"]), 1)
 
 
     # TODO: New line item is not added to closed order
