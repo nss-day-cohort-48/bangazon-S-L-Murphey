@@ -81,4 +81,25 @@ class OrderTests(APITestCase):
 
     # TODO: Complete order by adding payment type
 
-    # TODO: New line item is not added to closed order
+    def test_add_open_order(self):
+        """
+        Verify that adding a product to the user's cart adds it to an open order.
+        """
+
+        url = "/cart"
+        data = { "product_id": 1 }
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        response = self.client.post(url, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Get cart and verify product was added
+        url = "/cart"
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        response = self.client.get(url, None, format='json')
+        json_response = json.loads(response.content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json_response["id"], 1)
+        self.assertEqual(json_response["size"], 1)
+        self.assertEqual(len(json_response["lineitems"]), 1)
