@@ -1,9 +1,8 @@
-from bangazonapi import views
 import datetime
 import json
 from rest_framework import status
 from rest_framework.test import APITestCase
-from bangazonapi.models import payment
+from bangazonapi.models import Payment, Customer
 
 
 class PaymentTests(APITestCase):
@@ -47,8 +46,18 @@ class PaymentTests(APITestCase):
         """
         Ensure we can delete a payment type.
         """
+
         # Add product to order
-        self.test_create_payment_type()
+        #self.test_create_payment_type()
+        paymenttype = Payment()
+        paymenttype.merchant_name = "Chime"
+        paymenttype.account_number = "222-2222-2222"
+        paymenttype.expiration_date = "2030-01-01"
+        paymenttype.create_date = str(datetime.date.today())
+        paymenttype.customer_id = 1
+
+        paymenttype.save()
+
         url = "/paymenttypes/1"
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         response = self.client.delete(url)
