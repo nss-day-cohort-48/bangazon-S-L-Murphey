@@ -96,15 +96,15 @@ class OrderTests(APITestCase):
         Ensure we can add payment type to order.
         """
         self.test_add_product_to_order()
-        url = "/cart"
-        paymenttype = {"payment_type_id": 1}
+        
+        url = "/orders/1"
+        paymenttype = {"payment_type": 1}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-        response = self.client.post(url, paymenttype, format='json')
+        response = self.client.put(url, paymenttype, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # Get cart and verify payment type was added
-        url = "/cart"
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         response = self.client.get(url, None, format='json')
         json_response = json.loads(response.content)
