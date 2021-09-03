@@ -154,8 +154,11 @@ class Products(ViewSet):
             product = Product.objects.get(pk=pk)
             serializer = ProductSerializer(product, context={'request': request})
             return Response(serializer.data)
+        except Product.DoesNotExist as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
         except Exception as ex:
-            return HttpResponseServerError(ex)
+            return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update(self, request, pk=None):
         """
@@ -250,6 +253,8 @@ class Products(ViewSet):
         order = self.request.query_params.get('order_by', None)
         direction = self.request.query_params.get('direction', None)
         number_sold = self.request.query_params.get('number_sold', None)
+        min_price = self.request.query_params.get('min_price', None)
+        location_name = self.request.query_params.get('location_name', None)
 
         if order is not None:
             order_filter = order
@@ -263,6 +268,14 @@ class Products(ViewSet):
         if category is not None:
             products = products.filter(category__id=category)
 
+        if min_price is not None:
+            def price_filter(product):
+                if product.price >= int(min_price):
+                    return True
+                return False
+            
+            products = filter(price_filter, products)
+
         if quantity is not None:
             products = products.order_by("-created_date")[:int(quantity)]
 
@@ -273,6 +286,9 @@ class Products(ViewSet):
                 return False
 
             products = filter(sold_filter, products)
+
+        if location_name is not None:
+            products = products.filter(location__contains=location_name)
 
         serializer = ProductSerializer(
             products, many=True, context={'request': request})
