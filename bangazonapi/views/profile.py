@@ -1,5 +1,6 @@
 """View module for handling requests about customer profiles"""
 import datetime
+from django.db.models.fields import NullBooleanField
 from django.http import HttpResponseServerError
 from django.contrib.auth.models import User
 from rest_framework import serializers, status
@@ -233,7 +234,7 @@ class Profile(ViewSet):
             """
 
             try:
-                open_order = Order.objects.get(customer=current_user)
+                open_order = Order.objects.get(customer=current_user, payment_type=None)
                 print(open_order)
             except Order.DoesNotExist as ex:
                 open_order = Order()
