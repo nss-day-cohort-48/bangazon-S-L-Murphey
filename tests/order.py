@@ -98,7 +98,7 @@ class OrderTests(APITestCase):
         self.test_add_product_to_order()
         
         url = "/orders/1"
-        paymenttype = {"payment_type": 1}
+        paymenttype = {"payment_type_id": 1}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         response = self.client.put(url, paymenttype, format='json')
         
